@@ -40,8 +40,8 @@ void setup() {
   Serial.begin(115200);
   counter = 0;
   counter_ts = 0;
-  scale = test_ttf.scale(50);
-  draw::filled_rectangle(lcd,(srect16)lcd.bounds(),lcd_color::white);
+  scale = test_ttf.scale(80);
+  draw::filled_rectangle(lcd,(srect16)lcd.bounds(),lcd_color::black);
 }
 
 void loop() {
@@ -49,13 +49,14 @@ void loop() {
   const uint32_t ms = millis();
     if(ms>counter_ts+(1000/HZ)) {
       ssize16 sz = test_font.measure_text((ssize16)lcd.dimensions(),{0,0},itoa(counter,text,10),scale,0,gfx_encoding::utf8,&fcache);
+      sz.width+=2;
       void* bmp_data = malloc(bmp_type::sizeof_buffer((size16)sz));
       if(bmp_data!=nullptr) {
         bmp_type bmp((size16)sz,bmp_data);
-        draw::filled_rectangle(bmp,(srect16)bmp.bounds(),lcd_color::white);
-        draw::text(bmp,sz.bounds(),{0,0},text,test_font,scale, lcd_color::blue,lcd_color::white,false,false,0,gfx_encoding::utf8,nullptr,&fcache);
+        draw::filled_rectangle(bmp,(srect16)bmp.bounds(),lcd_color::black);
+        draw::text(bmp,sz.bounds(),{0,0},text,test_font,scale, lcd_color::red,lcd_color::black,false,false,0,gfx_encoding::utf8,nullptr,&fcache);
         srect16 sr = (srect16)bmp.bounds().center(lcd.bounds());
-        draw::filled_rectangle(lcd,sr,lcd_color::white);
+        draw::filled_rectangle(lcd,sr,lcd_color::black);
         draw::bitmap(lcd,sr,bmp,bmp.bounds());
         free(bmp_data);
       }
