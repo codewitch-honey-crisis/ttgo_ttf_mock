@@ -45,12 +45,20 @@ void setup() {
 }
 
 void loop() {
+  using bmp_type = bitmap<typename lcd_type::pixel_type>;
   const uint32_t ms = millis();
     if(ms>counter_ts+(1000/HZ)) {
       ssize16 sz = test_font.measure_text((ssize16)lcd.dimensions(),{0,0},itoa(counter,text,10),scale,0,gfx_encoding::utf8,&fcache);
-      srect16 sr = sz.bounds().center((srect16)lcd.bounds());
-      draw::filled_rectangle(lcd,sr,lcd_color::white);
-      draw::text(lcd,sr,{0,0},text,test_font,scale, lcd_color::blue,lcd_color::white,false,false,0,gfx_encoding::utf8,nullptr,&fcache);
+      void* bmp_data = malloc(bmp_type::sizeof_buffer((size16)sz));
+      if(bmp_data!=nullptr) {
+        bmp_type bmp((size16)sz,bmp_data);
+        draw::filled_rectangle(bmp,(srect16)bmp.bounds(),lcd_color::white);
+        draw::text(bmp,sz.bounds(),{0,0},text,test_font,scale, lcd_color::blue,lcd_color::white,false,false,0,gfx_encoding::utf8,nullptr,&fcache);
+        srect16 sr = (srect16)bmp.bounds().center(lcd.bounds());
+        draw::filled_rectangle(lcd,sr,lcd_color::white);
+        draw::bitmap(lcd,sr,bmp,bmp.bounds());
+        free(bmp_data);
+      }
       ++counter;
       counter_ts = millis();
       
